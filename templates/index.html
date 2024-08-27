@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Streaming</title>
+</head>
+<body>
+    <label for="rtspUrl">Enter RTSP URL:</label>
+    <input type="text" id="rtspUrl">
+    <button id="startButton">Start Stream</button>
+    <button id="stopButton" disabled>Stop Stream</button>
+    <img id="videoElement">
+
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const rtspUrlInput = document.getElementById('rtspUrl');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        let websocket;
+
+        startButton.addEventListener('click', () => {
+            websocket = new WebSocket("ws://localhost:9000/ws");
+            const rtspUrl = rtspUrlInput.value;
+            websocket.onopen = () => {
+                websocket.send(`start:${rtspUrl}`);
+                startButton.disabled = true;
+                stopButton.disabled = false;
+            };
+            // websocket.send(`start:${rtspUrl}`);
+            //
+            // startButton.disabled = true;
+            // stopButton.disabled = false;
+        });
+
+        stopButton.addEventListener('click', () => {
+            const rtspUrl = rtspUrlInput.value;
+            websocket.send(`stop:${rtspUrl}`);
+            websocket.
+            startButton.disabled = false;
+            stopButton.disabled = true;
+        });
+
+        websocket.onmessage = (event) => {
+            if (event.data instanceof Blob) {
+                const imageURL = URL.createObjectURL(event.data);
+                videoElement.src = imageURL;
+            }
+        };
+    </script>
+</body>
+</html>
